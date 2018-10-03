@@ -4,7 +4,9 @@
 #include <cstring>
 #include <map>
 #include <array>
+#include <iostream>
 
+static constexpr size_t MAXROMSIZE = (0x1000 - 0x0200);
 /* Reference: mattmik's mastering chip8 */
 
 class Chip8 {
