@@ -43,7 +43,22 @@ void Chip8::regReset()
 
 void Chip8::loadRom(const std::string& path) 
 {
-
-
+    std::FILE* rom;
+    [path, &rom]() -> std::FILE* {
+        rom =  std::fopen(path.c_str(), "rb");
+    };
+    rom == nullptr ? std::cerr << "Failed to open " << path : std::cout << path << " loaded." << std::endl;
+    std::fseek(rom, 0, SEEK_END);
+    auto romSize = std::ftell(rom);
+    std::fseek(rom, 0, SEEK_SET);
+    if (romSize > MAXROMSIZE) 
+    {
+        std::cerr << "ROM is too large." << std::endl;
+    }
+    if (romSize != std::fread(ram + 0x200, 1, romSize, rom)) 
+    {
+        std::cerr << "Could not load ROM into memory." << "\n";
+    }
+    std::fclose(rom);  
 }
 
