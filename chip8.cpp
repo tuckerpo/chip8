@@ -25,7 +25,7 @@ Chip8::Chip8()
 
 void Chip8::opCycle() 
 {
-
+    opcode = ram[pc] << 8 | memory[pc + 1];
 }
 
 void Chip8::regReset() 
