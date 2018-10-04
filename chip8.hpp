@@ -5,7 +5,7 @@
 #include <map>
 #include <array>
 #include <iostream>
-
+#include <cassert>
 static constexpr size_t MAXROMSIZE = (0x1000 - 0x0200);
 /* Reference: mattmik's mastering chip8 */
 
@@ -15,7 +15,7 @@ class Chip8 {
         void loadRom(const std::string&);
         void opCycle();
         void regReset();
-    
+        const uint16_t fetchOpcode();
     private:
         uint16_t opcode;
         uint8_t ram[0x1000];
