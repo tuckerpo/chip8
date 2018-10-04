@@ -27,7 +27,7 @@ void Chip8::opCycle()
 {
     opcode = ram[pc] << 8 | memory[pc + 1];
     uint16_t msb_mask = 0xFF00;
-
+    uint16_t lsb_mask = 0x00FF;
 }
 
 void Chip8::regReset() 
