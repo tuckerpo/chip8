@@ -17,6 +17,7 @@ class Chip8 {
         void regReset();
     
     private:
+        uint16_t opcode;
         uint8_t ram[0x1000];
         uint8_t V[0xF];
         uint16_t I;
