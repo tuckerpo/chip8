@@ -21,13 +21,19 @@ Chip8::Chip8()
                 0xE0, 0x90, 0x90, 0x90, 0xE0,
                 0xF0, 0x80, 0xF0, 0x80, 0xF0,
                 0xF0, 0x80, 0xF0, 0x80, 0x80};
+    assert(fontMap.size() <= 0x200);
+    for (unsigned i {0}; i < fontMap.size(); ++i) 
+    {
+        ram[i] = fontMap.at(i);
+    }
 }
 
 void Chip8::opCycle() 
 {
-    opcode = ram[pc] << 8 | memory[pc + 1];
+    opcode = fetchOpcode();
     uint16_t msb_mask = 0xFF00;
     uint16_t lsb_mask = 0x00FF;
+    
 }
 
 void Chip8::regReset() 
@@ -62,3 +68,7 @@ void Chip8::loadRom(const std::string& path)
     std::cout << "Rom loaded" << std::endl;
 }
 
+const uint16_t Chip8::fetchOpcode() 
+{
+    return ram[pc] | ram[pc + 1];
+}
