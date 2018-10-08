@@ -1,4 +1,7 @@
 #pragma once
+#ifndef CHIP8_H
+#define CHIP8_H
+
 #include <cstdint>
 #include <string>
 #include <cstring>
@@ -16,7 +19,9 @@ class Chip8 {
         void opCycle();
         void regReset();
         const uint16_t fetchOpcode();
+        const bool getGameState();
     private:
+        volatile bool gamestate;
         uint16_t opcode;
         std::array<uint8_t, 0x1000> ram;
         std::array<uint8_t, 0xF> V;
@@ -30,3 +35,5 @@ class Chip8 {
         //uint8_t fontMap[4*4*5];
         std::array<uint8_t, 4*4*5> fontMap;
 };
+
+#endif
