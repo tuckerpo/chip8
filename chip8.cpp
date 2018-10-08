@@ -26,6 +26,8 @@ Chip8::Chip8()
     {
         ram[i] = fontMap.at(i);
     }
+
+    gamestate = true;
 }
 
 void Chip8::opCycle() 
@@ -74,5 +76,11 @@ void Chip8::loadRom(const std::string& path)
 
 const uint16_t Chip8::fetchOpcode() 
 {
-    return ram[pc] | ram[pc + 1];
+    return ram[pc] << 8 | ram[pc + 1];
+}
+
+
+const bool Chip8::getGameState() 
+{
+    return gamestate;
 }
