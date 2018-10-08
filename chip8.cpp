@@ -38,10 +38,14 @@ void Chip8::opCycle()
 
 void Chip8::regReset() 
 {
-    std::memset(ram, 0, sizeof(ram));
-    std::memset(vram, 0, sizeof(vram));
-    std::memset(V, 0, sizeof(V));
-    std::memset(stack, 0, sizeof(stack));
+//    std::memset(ram, 0, sizeof(ram));
+//    std::memset(vram, 0, sizeof(vram));
+//    std::memset(V, 0, sizeof(V));
+//    std::memset(stack, 0, sizeof(stack));
+    ram = {};
+    vram = {};
+    V = {};
+    stack = {};
     delayTimer = 0;
     soundTimer = 0;
     I = 0;
@@ -60,7 +64,7 @@ void Chip8::loadRom(const std::string& path)
     {
         std::cerr << "ROM is too large." << std::endl;
     }
-    if (romSize != std::fread(ram + 0x200, 1, romSize, rom)) 
+    if (romSize != std::fread(ram.begin() + 0x200, 1, romSize, rom)) 
     {
         std::cerr << "Could not load ROM into memory." << "\n";
     }
