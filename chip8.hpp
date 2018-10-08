@@ -18,15 +18,15 @@ class Chip8 {
         const uint16_t fetchOpcode();
     private:
         uint16_t opcode;
-        uint8_t ram[0x1000];
-        uint8_t V[0xF];
+        std::array<uint8_t, 0x1000> ram;
+        std::array<uint8_t, 0xF> V;
         uint16_t I;
         uint8_t delayTimer;
         uint8_t soundTimer;
         uint16_t pc;
         uint8_t sp;
-        uint16_t stack[16];
-        uint8_t vram[0x800];
+        std::array<uint16_t, 16> stack;
+        std::array<uint8_t, 0x800> vram;
         //uint8_t fontMap[4*4*5];
         std::array<uint8_t, 4*4*5> fontMap;
 };
