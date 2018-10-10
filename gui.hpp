@@ -4,10 +4,10 @@
 
 
 namespace c8gui {
-	constexpr int w {1024};
-	constexpr int h {768};
-	const char* window_title = "Chip8 Interpreter";
-	static void error(const std::string& str, const char* err) 
+	static constexpr int w {1024};
+	static constexpr int h {768};
+	static const char* window_title = "Chip8 Interpreter";
+	static const void error(const std::string& str, const char* err) 
 	{
 		std::cerr << str << err << std::endl;
 	}
