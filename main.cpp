@@ -1,8 +1,11 @@
 #include "chip8.hpp"
 #include "gui.hpp"
+#ifdef _WIN32
+#define SDL_MAIN_HANDLED
+#endif
 #include <SDL2/SDL.h>
 
-int main(int argc, char** argv) 
+int main(int argc, char *argv[]) 
 {
 	/* GUI */
 	if (!SDL_Init(SDL_INIT_EVERYTHING)) 
