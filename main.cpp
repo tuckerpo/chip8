@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     Chip8 c8 = Chip8();
     while (c8.getGameState()) 
     {
-
+		c8.opCycle(c8.fetchOpcode());
     }
     c8.loadRom("roms/PONG");
     return 0;

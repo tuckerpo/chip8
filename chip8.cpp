@@ -30,9 +30,8 @@ Chip8::Chip8()
     gamestate = true;
 }
 
-void Chip8::opCycle() 
+void Chip8::opCycle(const uint16_t& op) 
 {
-    opcode = fetchOpcode();
     uint16_t msb_mask = 0xFF00;
     uint16_t lsb_mask = 0x00FF;
     

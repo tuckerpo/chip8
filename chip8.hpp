@@ -16,13 +16,12 @@ class Chip8 {
     public:
         Chip8();
         void loadRom(const std::string&);
-        void opCycle();
+        void opCycle(const uint16_t&);
         void regReset();
         const uint16_t fetchOpcode();
         const bool getGameState();
     private:
         volatile bool gamestate;
-        uint16_t opcode;
         std::array<uint8_t, 0x1000> ram;
         std::array<uint8_t, 0xF> V;
         uint16_t I;
