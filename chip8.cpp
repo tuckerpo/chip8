@@ -32,17 +32,13 @@ Chip8::Chip8()
 
 void Chip8::opCycle(const uint16_t& op) 
 {
-    uint16_t msb_mask = 0xFF00;
-    uint16_t lsb_mask = 0x00FF;
+    constexpr uint16_t msb_mask = 0xFF00;
+    constexpr uint16_t lsb_mask = 0x00FF;
     
 }
 
 void Chip8::regReset() 
 {
-//    std::memset(ram, 0, sizeof(ram));
-//    std::memset(vram, 0, sizeof(vram));
-//    std::memset(V, 0, sizeof(V));
-//    std::memset(stack, 0, sizeof(stack));
     ram = {};
     vram = {};
     V = {};
