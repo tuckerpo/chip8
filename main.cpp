@@ -9,8 +9,8 @@ int main(int argc, char *argv[])
 {
 	/* GUI */
 	if (!SDL_Init(SDL_INIT_EVERYTHING)) 
-	{
-		std::cerr << "Error initializing SDL2: " << SDL_GetError() << std::endl;
+	{	
+		c8gui::error("Error initializing SDL2:", SDL_GetError());
 	}
 
 	SDL_Window* c8window = SDL_CreateWindow(c8gui::window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, c8gui::w, c8gui::h, SDL_WINDOW_OPENGL);

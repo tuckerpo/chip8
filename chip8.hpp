@@ -21,6 +21,7 @@ class Chip8 {
         const uint16_t fetchOpcode();
         const bool getGameState();
     private:
+        static constexpr uint16_t OPMASK = 0xF000;
         volatile bool gamestate;
         std::array<uint8_t, 0x1000> ram;
         std::array<uint8_t, 0xF> V;
