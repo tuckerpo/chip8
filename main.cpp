@@ -1,9 +1,9 @@
 #include "chip8.hpp"
 #include "gui.hpp"
+#include <SDL2/SDL.h>
 #ifdef _WIN32
 #define SDL_MAIN_HANDLED
 #endif
-#include <SDL2/SDL.h>
 
 int main(int argc, char *argv[]) 
 {
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     while (c8.getGameState()) 
     {
-		c8.opCycle(c8.fetchOpcode());
+        c8.opCycle(c8.fetchOpcode());
     }
 	
     c8.loadRom("roms/PONG");

@@ -9,6 +9,9 @@
 #include <array>
 #include <iostream>
 #include <cassert>
+#include <limits>
+#include <random>
+
 static constexpr size_t MAXROMSIZE = (0x1000 - 0x0200);
 /* Reference: mattmik's mastering chip8 */
 
@@ -34,6 +37,7 @@ class Chip8 {
         std::array<uint8_t, 0x800> vram;
         //uint8_t fontMap[4*4*5];
         std::array<uint8_t, 4*4*5> fontMap;
+        std::mt19937 rng;
 };
 
 #endif
