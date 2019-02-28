@@ -20,9 +20,12 @@ INCLUDE(FindPkgConfig)
 PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 endif (UNIX)
 
-include_directories(${SDL2_INCLUDE_DIR})
+#include_directories(${SDL2_INCLUDE_DIR})
+include_directories(include)
 
-set(SOURCES chip8.cpp main.cpp)
+set(SOURCES 
+	src/chip8.cpp 
+	src/main.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

@@ -1,4 +1,4 @@
-#include "../chip8.hpp"
+#include "chip8.hpp"
 #include <string>
 #include <experimental/filesystem>
 
