@@ -1,6 +1,6 @@
+#ifndef _CHIP8_H
+#define _CHIP8_H
 #pragma once
-#ifndef CHIP8_H
-#define CHIP8_H
 
 #include <cstdint>
 #include <string>

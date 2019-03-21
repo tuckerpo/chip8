@@ -1,6 +1,6 @@
+#ifndef _GUI_H
+#define _GUI_H
 #pragma once
-#ifndef GUI_H
-#define GUI_H
 
 
 namespace c8gui {

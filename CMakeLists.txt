@@ -24,7 +24,8 @@ endif (UNIX)
 include_directories(include)
 
 set(SOURCES 
-	src/chip8.cpp 
+	src/chip8.cpp
+        src/chip8factory.cpp
 	src/main.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
