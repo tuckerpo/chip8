@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
     SDL_Texture *texture = SDL_CreateTexture(rend, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
 
-    uint32_t pixels[0x1000];
+    uint32_t pixels[0x800];
 
 
 	std::shared_ptr<Chip8Factory> c8f;
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
                 uint8_t pixel = c8->vram[i];
                 pixels[i] = (0x00FFFFFF * pixel) | 0xFF000000;
             }
-            SDL_UpdateTexture(texture, NULL, pixels, 64 * sizeof(uint32_t));
+            SDL_UpdateTexture(texture, NULL, pixels, 64 * sizeof(int32_t));
             SDL_RenderClear(rend);
             SDL_RenderCopy(rend, texture, NULL, NULL);
             SDL_RenderPresent(rend);

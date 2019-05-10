@@ -32,8 +32,8 @@ Chip8::Chip8()
 
     delay_timer = 0;
     sound_timer = 0;
-
-    rng.seed(std::random_device()());
+    srand(time(NULL));
+//rng.seed(std::random_device()());
 }
 
 void Chip8::regReset() 
@@ -88,7 +88,7 @@ void Chip8::opCycle(const uint16_t& op)
             break;
         /* 4Xnn - Skip next instr if Vx != NN */
         case 0x4000:
-            V[(op & 0x0F00) >> 8] != (op & 0x00FF) ? pc += 2 : pc += 4;
+            V[(op & 0x0F00) >> 8] != (op & 0x00FF) ? pc += 4 : pc += 2;
             break;
         /* 5XY0 - Skip next instr if Vx == Vy */
         case 0x5000:
@@ -190,8 +190,8 @@ void Chip8::opCycle(const uint16_t& op)
         /* CXNN - Set VX to a random number with mask NN */
         case 0xC000:
             { 
-            std::uniform_int_distribution<std::mt19937::result_type> dist(0, (op & 0x00FF)); 
-            V[(op & 0x0F00) >> 8] = dist(rng);
+            //std::uniform_int_distribution<std::mt19937::result_type> dist(0, (op & 0x00FF)); 
+            V[(op & 0x0F00) >> 8] = (rand() & (0xFF + 1)) & (op & 0x00FF);
             pc += 2;
             break; 
             }
