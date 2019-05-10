@@ -36,18 +36,31 @@ Chip8::Chip8()
     rng.seed(std::random_device()());
 }
 
+void Chip8::regReset() 
+{
+    ram = {};
+    vram = {};
+    V = {};
+    stack = {};
+    delayTimer = 0;
+    soundTimer = 0;
+    I = 0;
+    pc = 0x200;
+    sp = 0;
+}
+
+
 void Chip8::opCycle(const uint16_t& op) 
 {
-    constexpr uint16_t msb_mask = 0xFF00;
-    constexpr uint16_t lsb_mask = 0x00FF;
-    printf("%X\n", op);
     switch (op & OPMASK) 
     {
         case 0x0000:
             switch(op & 0x000F) {
             /* Clear the screen. */
             case 0x0000:
-                vram = {};
+                for (int i = 0; i < 2048; ++i) {
+                    vram[i] = 0;
+                }
                 draw = true;
                 pc += 2;
                 break;
@@ -167,7 +180,7 @@ void Chip8::opCycle(const uint16_t& op)
             break;
         /* ANNN - Store mem address NNN in register I */
         case 0xA000:
-            I = op & 0xFFF;
+            I = op & 0x0FFF;
             pc += 2;
             break;
         /* BNNN - Jump to address NNN + V0 */
@@ -301,7 +314,10 @@ void Chip8::opCycle(const uint16_t& op)
 
             
         } // END 0xFnnn case
-        break;  
+        break; 
+
+    default:
+        printf("Mystery opcode %.4X\n", op);
 
     }
     if (delay_timer > 0) --delay_timer;
@@ -309,19 +325,6 @@ void Chip8::opCycle(const uint16_t& op)
         if (sound_timer == 1)
             //sound!
         --sound_timer;
-}
-
-void Chip8::regReset() 
-{
-    ram = {};
-    vram = {};
-    V = {};
-    stack = {};
-    delayTimer = 0;
-    soundTimer = 0;
-    I = 0;
-    pc = 0x200;
-    sp = 0;
 }
 
 void Chip8::loadRom(const std::string& path) 
