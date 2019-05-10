@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
 	std::shared_ptr<Chip8Factory> c8f;
 	auto c8 = c8f->createChip8();
-    c8->loadRom("../roms/PONG");
+    c8->loadRom("../roms/PONG2");
     while (c8->getGameState()) 
     {
         c8->opCycle(c8->fetchOpcode());

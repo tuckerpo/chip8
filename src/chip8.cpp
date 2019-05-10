@@ -40,7 +40,7 @@ void Chip8::opCycle(const uint16_t& op)
 {
     constexpr uint16_t msb_mask = 0xFF00;
     constexpr uint16_t lsb_mask = 0x00FF;
-
+    printf("%X\n", op);
     switch (op & OPMASK) 
     {
         case 0x0000:
@@ -48,6 +48,7 @@ void Chip8::opCycle(const uint16_t& op)
             /* Clear the screen. */
             case 0x0000:
                 vram = {};
+                draw = true;
                 pc += 2;
                 break;
             /* Return from a subroutine. */
@@ -67,7 +68,6 @@ void Chip8::opCycle(const uint16_t& op)
             stack[sp] = pc;
             ++sp;
             pc = op & 0x0FFF;
-            pc += 2;
             break;
         /* 3XNN - Skip next instr if VX == NN */
         case 0x3000:
@@ -75,7 +75,7 @@ void Chip8::opCycle(const uint16_t& op)
             break;
         /* 4Xnn - Skip next instr if Vx != NN */
         case 0x4000:
-            V[(op & 0x0F00) >> 8] != (op * 0x00FF) ? pc += 4 : pc += 2;
+            V[(op & 0x0F00) >> 8] != (op & 0x00FF) ? pc += 4 : pc += 2;
             break;
         /* 5XY0 - Skip next instr if Vx == Vy */
         case 0x5000:
@@ -117,33 +117,46 @@ void Chip8::opCycle(const uint16_t& op)
                 /* 8XY4 - Add VY to VX, set VF = 01 if a carry occurs, VF = 00 if not. */
                 case 0x0004:
                     V[(op & 0x0F00) >> 8] += V[(op & 0x00F0) >> 4];
-                    V[(op & 0x0F00) >> 8] += V[(op & 0x00F0) >> 4]
-                    > std::numeric_limits<uint8_t>::max() ? V[0xF] = 0x01 : V[0xF] = 0x00;
+                    if(V[(op & 0x00F0) >> 4] > (0xFF - V[(op & 0x0F00) >> 8]))
+                        V[0xF] = 1; //carry
+                    else
+                        V[0xF] = 0;;
                     pc += 2;
                     break; 
                 /* 8XY5 - Subtract the value of VY from VX. VF = 00 if borrow, VF = 01 if not. */
                 case 0x0005:
+                    if (V[(op & 0x00F0) >> 4] > V[(op & 0x0F00) >> 8])
+                        V[0xF] = 0;
+                    else 
+                        V[0xF] = 1;
                     V[(op & 0x0F00) >> 8] -= V[(op & 0x00F0) >> 4];
-                    V[(op & 0x00F0) >> 4] >  V[(op & 0x0F00) >> 8]
-                    ? V[0xF] = 0x00 : V[0xF] = 0x01;
                     pc += 2;
                     break;
                 /* 8XY6 - Store VY shifted right by one bit in VX. VF = LSB of VX prior to shift. */
                 case 0x0006:
+                    //V[0xF] = V[(op & 0x0F00) >> 8] & 0x1;
+                    //V[(op & 0x0F00) >> 8] = (V[(op & 0x00F0) >> 4] >> 1); 
                     V[0xF] = V[(op & 0x0F00) >> 8] & 0x1;
-                    V[(op & 0x0F00) >> 8] = (V[(op & 0x00F0) >> 4] >> 1); 
+                    V[(op & 0x0F00) >> 8] >>= 1;
                     pc += 2;
                     break;
                 /* 8XY7 - VX = VY - VX; VF = 00 if borrow, 01 if not.  */
                 case 0x0007:
-                    V[(op & 0x0F00) >> 8] -= (V[(op & 0x00F0) >> 4] - V[(op & 0x0F00) >> 8]);
-                    V[(op & 0x0F00) >> 8] > V[(op & 0x00F0) >> 4] ? V[0xF] = 0x00 : V[0xF] = 0x01;
+                    //V[(op & 0x0F00) >> 8] -= (V[(op & 0x00F0) >> 4] - V[(op & 0x0F00) >> 8]);
+                    //V[(op & 0x0F00) >> 8] > V[(op & 0x00F0) >> 4] ? V[0xF] = 0x00 : V[0xF] = 0x01;
+                    if (V[(op & 0x0F00) >> 8] > V[(op & 0x00F0) >> 4])
+                        V[0xF] = 0;
+                    else 
+                        V[0xF] = 1;
+                    V[(op & 0x0F00) >> 8] = V[(op & 0x00F0) >> 4] - V[(op & 0x0F00) >> 8];
                     pc += 2;
                     break;
                 /* 8XYE - Store VY left shifted one bit to VX. Set VF to the MSB of VY prior to the shift. */
                 case 0x000E:
-                    V[(op & 0x0F00) >> 8] = V[(op & 0x00F0) >> 4] >> 1;
-                    V[0xF] = V[(op & 0x00F0) >> 4] & 0x1;
+                   // V[(op & 0x0F00) >> 8] = V[(op & 0x00F0) >> 4] >> 1;
+                   // V[0xF] = V[(op & 0x00F0) >> 4] & 0x1;
+                    V[0xF] = V[(op & 0x0F00) >> 8] >> 7;
+                    V[(op & 0x0F00) >> 8] <<= 1;
                     pc += 2;
                     break;  
             }
@@ -183,11 +196,11 @@ void Chip8::opCycle(const uint16_t& op)
 	    for (int yline = 0; yline < height; yline++) {
             pix = ram[I + yline];
             for (int xline = 0; xline < 8; xline++) {
-                if ((pix & (0x80 >> xline) != 0)) {
+                if ((pix & (0x80 >> xline)) != 0) {
                     if ( vram[(x + xline + ((y + yline) * 64))]  == 1) {
                         V[0xF] = 1;
                     }
-                    vram[(x + xline + ((y + yline) * 64))] ^= 1;
+                    vram[x + xline + ((y + yline) * 64)] ^= 1;
                 }
             }
         }
@@ -229,7 +242,7 @@ void Chip8::opCycle(const uint16_t& op)
 
                 for (int i = 0; i < 16; ++i) {
                     if (key[i] != 0) {
-                        V[(op & 0x0F00) >> 8] = 1;
+                        V[(op & 0x0F00) >> 8] = i;
                         key_down = true;
                     }
                 }
@@ -257,6 +270,7 @@ void Chip8::opCycle(const uint16_t& op)
                 else 
                     V[0xF] = 0;
 
+            case 0x0029:
                 I += V[(op & 0x0F00) >> 8] * 0x5;
                 pc += 2;
                 break;
