@@ -75,7 +75,7 @@ void Chip8::opCycle(const uint16_t& op)
             break;
         /* 4Xnn - Skip next instr if Vx != NN */
         case 0x4000:
-            V[(op & 0x0F00) >> 8] != (op & 0x00FF) ? pc += 4 : pc += 2;
+            V[(op & 0x0F00) >> 8] != (op & 0x00FF) ? pc += 2 : pc += 4;
             break;
         /* 5XY0 - Skip next instr if Vx == Vy */
         case 0x5000:
