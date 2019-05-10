@@ -22,12 +22,17 @@ Chip8::Chip8()
                 0xF0, 0x80, 0xF0, 0x80, 0xF0,
                 0xF0, 0x80, 0xF0, 0x80, 0x80};
     assert(fontMap.size() <= 0x200);
+
     for (unsigned i {0}; i < fontMap.size(); ++i) 
     {
         ram[i] = fontMap.at(i);
     }
 
     gamestate = true;
+
+    delay_timer = 0;
+    sound_timer = 0;
+
     rng.seed(std::random_device()());
 }
 
@@ -167,8 +172,28 @@ void Chip8::opCycle(const uint16_t& op)
         /* DXYN - Draw a sprite at position VX, VY with N bytes of sprite data starting at the address
            stored in I. Set VF to 01 if any set pixels are changed to unset, 00 if not. */
         case 0xD000:
+        {
             //TODO yikes!
-            
+	    uint16_t x = V[(op & 0x0F00) >> 8];
+	    uint16_t y = V[(op & 0x00F0) >> 4];
+	    uint16_t height = op & 0x000F;
+	    uint16_t pix;
+
+	    V[0xF] = 0;
+	    for (int yline = 0; yline < height; yline++) {
+            pix = ram[I + yline];
+            for (int xline = 0; xline < 8; xline++) {
+                if ((pix & (0x80 >> xline) != 0)) {
+                    if ( vram[(x + xline + ((y + yline) * 64))]  == 1) {
+                        V[0xF] = 1;
+                    }
+                    vram[(x + xline + ((y + yline) * 64))] ^= 1;
+                }
+            }
+        }
+        draw = true;
+        pc += 2;
+    }
             break;
         /* EX _ _  */
         case 0xE000:
@@ -176,15 +201,100 @@ void Chip8::opCycle(const uint16_t& op)
             {
                 /* EX9E - Skip following instr if the key being pressed == key hex code in VX */
                 case 0x009E:
+                if (key[V[(op & 0x0F00) >> 8]] != 0) 
+                    pc += 4;
+                else 
+                    pc += 2;
                     break;
                 /* EXA1 - Skip following instr if the key being pressed != key hex code in VX */
                 case 0x00A1:
+                if (key[V[(op & 0x0F00) >> 8]] == 0)
+                    pc += 4;
+                else 
+                    pc += 2;
                     break;
             }
         break; // END 0xEX _ _ case
-        
+         
+    case 0xF000:
+        switch (op & 0x00FF) {
+            case 0x0007:
+                V[(op & 0x0F00) >> 8] = delay_timer;
+                pc += 2;
+                break;
+
+            case 0x000A:
+            {
+                bool key_down = false;
+
+                for (int i = 0; i < 16; ++i) {
+                    if (key[i] != 0) {
+                        V[(op & 0x0F00) >> 8] = 1;
+                        key_down = true;
+                    }
+                }
+
+                if (!key_down) return;
+
+                pc += 2;
+            } // 0x000A
+            break;
+
+            case 0x0015:
+                delay_timer = V[(op & 0x0F00) >> 8];
+                pc += 2;
+                break;
+
+            case 0x0018: 
+                sound_timer = V[(op & 0x0F00) >> 8];
+                pc += 2;
+                break;
+
+            case 0x001E:
+
+                if (I + V[(op & 0x0F00) >> 8] > 0x0FFF)
+                    V[0xF] = 1;
+                else 
+                    V[0xF] = 0;
+
+                I += V[(op & 0x0F00) >> 8] * 0x5;
+                pc += 2;
+                break;
+
+            case 0x0033:
+                ram[I] = V[(op & 0x0F00) >> 8] / 100;
+                ram[I + 1] = (V[(op & 0x0F00) >> 8] / 10) % 10;
+                ram[I + 2] = V[(op & 0x0F00) >> 8] % 10;
+                pc += 2;
+                break;
+
+            case 0x0055:
+                for (int i = 0; i <= ((op & 0x0F00) >> 8); ++i) 
+                    ram[I + i] = V[i];
+
+               I += ((op & 0x0F00) >> 8) + 1;
+               pc += 2;
+               break;
+
+            case 0x0065:
+                for (int i = 0; i < ((op & 0x0F00) >> 8); ++i) 
+                    V[i] = ram[I + i];
+
+
+                I += ((op & 0x0F00) >> 8) + 1;
+                pc += 2;
+                break;
+
+            
+        } // END 0xFnnn case
+        break;  
+
     }
-    
+    if (delay_timer > 0) --delay_timer;
+    if (sound_timer > 0) 
+        if (sound_timer == 1)
+            //sound!
+        --sound_timer;
 }
 
 void Chip8::regReset() 
