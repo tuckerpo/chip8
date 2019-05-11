@@ -189,7 +189,7 @@ void Chip8::opCycle(const uint16_t& op)
             break;
         /* CXNN - Set VX to a random number with mask NN */
         case 0xC000:
-            V[(op & 0x0F00) >> 8] = (rand() & (0xFF + 1)) & (op & 0x00FF);
+            V[(op & 0x0F00) >> 8] = (rand() % (0xFF + 1)) & (op & 0x00FF);
             pc += 2;
             break; 
 
