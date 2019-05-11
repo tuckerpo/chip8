@@ -189,12 +189,10 @@ void Chip8::opCycle(const uint16_t& op)
             break;
         /* CXNN - Set VX to a random number with mask NN */
         case 0xC000:
-            { 
-            //std::uniform_int_distribution<std::mt19937::result_type> dist(0, (op & 0x00FF)); 
             V[(op & 0x0F00) >> 8] = (rand() & (0xFF + 1)) & (op & 0x00FF);
             pc += 2;
             break; 
-            }
+
         /* DXYN - Draw a sprite at position VX, VY with N bytes of sprite data starting at the address
            stored in I. Set VF to 01 if any set pixels are changed to unset, 00 if not. */
         case 0xD000:
@@ -282,9 +280,12 @@ void Chip8::opCycle(const uint16_t& op)
                     V[0xF] = 1;
                 else 
                     V[0xF] = 0;
+                I += V[(op & 0x0F00) >> 8];
+                pc += 2;
+                break;
 
             case 0x0029:
-                I += V[(op & 0x0F00) >> 8] * 0x5;
+                I = V[(op & 0x0F00) >> 8] * 0x5;
                 pc += 2;
                 break;
 
