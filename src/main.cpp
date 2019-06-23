@@ -8,8 +8,19 @@
 #define SDL_MAIN_HANDLED
 #endif
 
+static void print_usage(char **argv) {
+    printf("Usage: %s <ROM>\n", argv[0]);
+    exit(1);
+}
+
 int main(int argc, char *argv[]) 
 {
+    if (argc < 2) {
+        print_usage(argv);
+    }
+
+    std::string the_rom = (argv[1]);
+
     uint8_t keys[16] = {
         SDLK_x,
         SDLK_1,
@@ -54,7 +65,7 @@ int main(int argc, char *argv[])
 
 	std::shared_ptr<Chip8Factory> c8f;
 	auto c8 = c8f->createChip8();
-    c8->loadRom("../roms/PONG2");
+    c8->loadRom(the_rom);
     while (c8->getGameState()) 
     {
         c8->opCycle(c8->fetchOpcode());
