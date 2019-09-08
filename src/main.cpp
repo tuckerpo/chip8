@@ -71,24 +71,55 @@ int main(int argc, char *argv[])
         c8->opCycle(c8->fetchOpcode());
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
-            if (e.type == SDL_KEYDOWN) {
-                if (e.key.keysym.sym == SDLK_ESCAPE)
-                    c8->gamestate = false;
+            switch (e.type)
+            {
 
-                for (int i = 0; i < 16; ++i) {
-                    if (e.key.keysym.sym == keys[i]) {
-                        c8->key[i] = 1;
+                case SDL_KEYDOWN:
+                {
+                    if (e.key.keysym.sym == SDLK_ESCAPE)
+                        c8->gamestate = false;
+
+                    for (int i = 0; i < 16; ++i) {
+                        if (e.key.keysym.sym == keys[i]) {
+                            c8->key[i] = 1;
+                        }
+                    }
+                    break;
+                }
+
+                case SDL_KEYUP:
+                {
+                    for (int i = 0; i < 16; ++i) {
+                        if (e.key.keysym.sym == keys[i]) {
+                            c8->key[i] = 0;
+                        }
+                    }
+                    break;
+                }
+
+                case SDL_WINDOWEVENT:
+                {
+                    switch (e.window.event)
+                    {
+                        case SDL_WINDOWEVENT_CLOSE:
+                        {
+                            c8->gamestate = false;
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
                     }
                 }
-            }
-            if (e.type == SDL_KEYUP) { 
-                for (int i = 0; i < 16; ++i) {
-                    if (e.key.keysym.sym == keys[i]) {
-                        c8->key[i] = 0;
-                    }
+
+                default:
+                {
+                    break;
                 }
-            }
+            } // switch
         }
+
         if (c8->draw) {
             c8->draw &= ~c8->draw;
             
@@ -101,7 +132,9 @@ int main(int argc, char *argv[])
             SDL_RenderCopy(rend, texture, NULL, NULL);
             SDL_RenderPresent(rend);
         }
-    }
 
-}
+    } // while (SDL_PollEvent)
+
+} // main
+
 	

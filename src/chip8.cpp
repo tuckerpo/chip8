@@ -36,6 +36,12 @@ Chip8::Chip8()
 //rng.seed(std::random_device()());
 }
 
+Chip8::~Chip8()
+{
+    printf("%s\n", __func__);
+    this->gamestate = false;
+}
+
 void Chip8::regReset() 
 {
     ram = {};
@@ -331,7 +337,8 @@ void Chip8::opCycle(const uint16_t& op)
 void Chip8::loadRom(const std::string& path) 
 {
     std::FILE* rom = std::fopen(path.c_str(), "rb");
-    rom == nullptr ? std::cerr << "\033[31m" << "Failed to open " << path << std::endl : std::cout << "\033[32m" << path << " loaded." << std::endl;
+    rom == nullptr ? std::cerr << "\033[31m" << "Failed to open " << path << "\033[0m" << std::endl
+        : std::cout << "\033[32m" << path << " loaded." << "\033[0m" << std::endl;
     std::fseek(rom, 0, SEEK_END);
     auto romSize = std::ftell(rom);
     std::fseek(rom, 0, SEEK_SET);
