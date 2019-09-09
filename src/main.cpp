@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
                     break;
                 }
             } // switch
-        }
+        } //  while poll (SDLEvent)
 
         if (c8->draw) {
             c8->draw &= ~c8->draw;
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
             SDL_RenderPresent(rend);
         }
 
-    } // while (SDL_PollEvent)
+    } // while (game running) 
 
 } // main
 
