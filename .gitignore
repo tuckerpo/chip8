@@ -7,3 +7,9 @@ CMakeCache.txt
 Makefile 
 cmake_install.cmake
 *build*/
+
+# Windows build artifacts
+*.**~
+*.**un
+*.**obj
+*.**cpp~
