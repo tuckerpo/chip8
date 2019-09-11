@@ -1,7 +1,5 @@
 #include "chip8.hpp"
 
-
-
 Chip8::Chip8() 
 {
     this->regReset();
@@ -32,13 +30,12 @@ Chip8::Chip8()
 
     delay_timer = 0;
     sound_timer = 0;
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 //rng.seed(std::random_device()());
 }
 
 Chip8::~Chip8()
 {
-    printf("%s\n", __func__);
     this->gamestate = false;
 }
 
@@ -336,21 +333,8 @@ void Chip8::opCycle(const uint16_t& op)
 
 void Chip8::loadRom(const std::string& path) 
 {
-    std::FILE* rom = std::fopen(path.c_str(), "rb");
-    rom == nullptr ? std::cerr << "\033[31m" << "Failed to open " << path << "\033[0m" << std::endl
-        : std::cout << "\033[32m" << path << " loaded." << "\033[0m" << std::endl;
-    std::fseek(rom, 0, SEEK_END);
-    auto romSize = std::ftell(rom);
-    std::fseek(rom, 0, SEEK_SET);
-    if (romSize > MAXROMSIZE) 
-    {
-        std::cerr << "ROM is too large." << std::endl;
-    }
-    if (romSize != std::fread(ram.begin() + 0x200, 1, romSize, rom)) 
-    {
-        std::cerr << "Could not load ROM into memory." << "\n";
-    }
-    std::fclose(rom);  
+    std::ifstream rom(path.c_str(), std::ios::in | std::ifstream::binary);
+    rom.read((char *)&ram[0x200], ram.size());
 }
 
 const uint16_t Chip8::fetchOpcode() 

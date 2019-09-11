@@ -1,6 +1,10 @@
 #include "chip8factory.hpp"
 #include "gui.hpp"
+#if defined(_WIN32) || defined (WIN32)
+#include "SDL.h"
+#else
 #include <SDL2/SDL.h>
+#endif
 #include <memory>
 #include <csignal>
 

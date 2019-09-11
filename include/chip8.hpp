@@ -1,8 +1,9 @@
 #ifndef _CHIP8_H
 #define _CHIP8_H
 #pragma once
-
+#include <ctime>
 #include <cstdint>
+#include <cstdio>
 #include <string>
 #include <cstring>
 #include <map>
@@ -11,6 +12,8 @@
 #include <cassert>
 #include <limits>
 #include <random>
+#include <fstream>
+#include <iomanip>
 
 static constexpr size_t MAXROMSIZE = (0x1000 - 0x0200);
 /* Reference: mattmik's mastering chip8 */
