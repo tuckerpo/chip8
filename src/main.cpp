@@ -22,8 +22,14 @@ int main(int argc, char *argv[])
     if (argc < 2) {
         print_usage(argv);
     }
-
     std::string the_rom = (argv[1]);
+    std::shared_ptr<Chip8Factory> c8f;
+    auto c8 = c8f->createChip8();
+    if (!c8->loadRom(the_rom))
+    {
+        printf("Could not load %s (does file exist?)\n", the_rom.c_str());
+        exit(1);
+    }
 
     uint8_t keys[16] = {
         SDLK_x,
@@ -44,15 +50,16 @@ int main(int argc, char *argv[])
         SDLK_v,
     };
 
-	signal(SIGINT, [](int signum) {std::cout << "Received signal '" << signum << "'." << std::endl; exit(signum); });
-	/* GUI */
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) 
-	{	
-		c8gui::error("Error initializing SDL2:", SDL_GetError());
-	}
+    signal(SIGINT, [](int signum) {std::cout << "Received signal '" << signum << "'." << std::endl; exit(signum); });
+    /* GUI */
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) 
+    {	
+    	c8gui::error("Error initializing SDL2:", SDL_GetError());
+    }
+    
+    SDL_Window *c8window = SDL_CreateWindow(c8gui::window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, c8gui::w, c8gui::h, SDL_WINDOW_OPENGL);
 
-	SDL_Window *c8window = SDL_CreateWindow(c8gui::window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, c8gui::w, c8gui::h, SDL_WINDOW_OPENGL);
-	if (c8window == nullptr) c8gui::error("Window initialization error: ", SDL_GetError());
+    if (c8window == nullptr) c8gui::error("Window initialization error: ", SDL_GetError());
     SDL_Renderer *rend = SDL_CreateRenderer(c8window, -1, 0);
 
     if (!rend) {
@@ -65,11 +72,6 @@ int main(int argc, char *argv[])
     SDL_Texture *texture = SDL_CreateTexture(rend, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
 
     uint32_t pixels[0x800];
-
-
-	std::shared_ptr<Chip8Factory> c8f;
-	auto c8 = c8f->createChip8();
-    c8->loadRom(the_rom);
     while (c8->getGameState()) 
     {
         c8->opCycle(c8->fetchOpcode());
@@ -77,7 +79,6 @@ int main(int argc, char *argv[])
         while(SDL_PollEvent(&e)) {
             switch (e.type)
             {
-
                 case SDL_KEYDOWN:
                 {
                     if (e.key.keysym.sym == SDLK_ESCAPE)
@@ -90,7 +91,6 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
-
                 case SDL_KEYUP:
                 {
                     for (int i = 0; i < 16; ++i) {
@@ -100,7 +100,6 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
-
                 case SDL_WINDOWEVENT:
                 {
                     switch (e.window.event)
@@ -116,7 +115,6 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-
                 default:
                 {
                     break;
@@ -126,7 +124,6 @@ int main(int argc, char *argv[])
 
         if (c8->draw) {
             c8->draw &= ~c8->draw;
-            
             for (int i = 0; i < 2048; ++i) {
                 uint8_t pixel = c8->vram[i];
                 pixels[i] = (0x00FFFFFF * pixel) | 0xFF000000;
@@ -136,9 +133,5 @@ int main(int argc, char *argv[])
             SDL_RenderCopy(rend, texture, NULL, NULL);
             SDL_RenderPresent(rend);
         }
-
     } // while (game running) 
-
 } // main
-
-	

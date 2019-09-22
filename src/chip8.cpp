@@ -331,10 +331,12 @@ void Chip8::opCycle(const uint16_t& op)
         --sound_timer;
 }
 
-void Chip8::loadRom(const std::string& path) 
+bool Chip8::loadRom(const std::string& path) 
 {
+    if (!std::filesystem::exists(path.c_str())) return false;
     std::ifstream rom(path.c_str(), std::ios::in | std::ifstream::binary);
     rom.read((char *)&ram[0x200], ram.size());
+    return true;
 }
 
 const uint16_t Chip8::fetchOpcode() 

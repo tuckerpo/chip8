@@ -14,6 +14,7 @@
 #include <random>
 #include <fstream>
 #include <iomanip>
+#include <filesystem>
 
 static constexpr size_t MAXROMSIZE = (0x1000 - 0x0200);
 /* Reference: mattmik's mastering chip8 */
@@ -22,7 +23,7 @@ class Chip8 {
     public:
         Chip8();
         virtual ~Chip8();
-        void loadRom(const std::string&);
+        bool loadRom(const std::string&);
         void opCycle(const uint16_t&);
         void regReset();
         const uint16_t fetchOpcode();
