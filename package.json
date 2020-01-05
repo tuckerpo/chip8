@@ -1,0 +1,32 @@
+{
+  "name": "chip8",
+  "version": "1.0.0",
+  "description": "chip8 compiled natively for Linux, Windows and wasm",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuckerpo/chip8.git"
+  },
+  "author": "Tucker Polomik",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tuckerpo/chip8/issues"
+  },
+  "homepage": "https://github.com/tuckerpo/chip8#readme",
+  "dependencies": {
+    "babel": "^6.23.0",
+    "webpack": "^4.41.5",
+    "yargs": "^15.1.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.10"
+  }
+}

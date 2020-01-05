@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset utf-8">
+
+</head>
+
+<body>
+
+    <div id="shell">
+        <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+    </div>
+
+    <div id="rom_container">
+        <select id="rom">
+            <option>SELECT ROM</option>
+            <option value="PONG">PONG</option>
+        </select>
+    </div>
+    <script type="text/javascript">
+        var Module = {
+            canvas: (function () { return document.getElementById('canvas'); })()
+        };
+    </script>
+    <script src="./dist/chip8.js"></script>
+    <script src="./dist/index.js"></script>
+</body>
+</html>
+
