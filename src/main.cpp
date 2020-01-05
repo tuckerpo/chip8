@@ -1,11 +1,27 @@
 #include "chip8factory.hpp"
 #include "gui.hpp"
 #include <SDL2/SDL.h>
+#include <chrono>
+#include <thread>
 #include <memory>
 #include <csignal>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <emscripten/bind.h>
+
+#endif
+
 #ifdef _WIN32
 #define SDL_MAIN_HANDLED
+#endif
+
+static bool romLoaded = false;
+
+#ifdef __EMSCRIPTEN__
+std::shared_ptr<Chip8Factory> c8f;
+std::shared_ptr<Chip8> c8 = c8f->createChip8();
+static std::string the_rom = std::string();
 #endif
 
 static void print_usage(char **argv) {
@@ -13,34 +29,17 @@ static void print_usage(char **argv) {
     exit(1);
 }
 
-int main(int argc, char *argv[]) 
-{
-    if (argc < 2) {
-        print_usage(argv);
-    }
+#ifdef __EMSCRIPTEN__
+void load_rom (std::string path) {
+    the_rom = path;
+    c8->loadRom(path);
+    romLoaded = true;
+}
+#endif 
 
-    std::string the_rom = (argv[1]);
+void game() {
 
-    uint8_t keys[16] = {
-        SDLK_x,
-        SDLK_1,
-        SDLK_2,
-        SDLK_3,
-        SDLK_q,
-        SDLK_w,
-        SDLK_e,
-        SDLK_a,
-        SDLK_s,
-        SDLK_d,
-        SDLK_z,
-        SDLK_c,
-        SDLK_4,
-        SDLK_r,
-        SDLK_f,
-        SDLK_v,
-    };
-
-	signal(SIGINT, [](int signum) {std::cout << "Received signal '" << signum << "'." << std::endl; exit(signum); });
+    if (!romLoaded) return;
 	/* GUI */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) 
 	{	
@@ -61,6 +60,24 @@ int main(int argc, char *argv[])
     SDL_Texture *texture = SDL_CreateTexture(rend, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
 
     uint32_t pixels[0x800];
+    uint8_t keys[16] = {
+        SDLK_x,
+        SDLK_1,
+        SDLK_2,
+        SDLK_3,
+        SDLK_q,
+        SDLK_w,
+        SDLK_e,
+        SDLK_a,
+        SDLK_s,
+        SDLK_d,
+        SDLK_z,
+        SDLK_c,
+        SDLK_4,
+        SDLK_r,
+        SDLK_f,
+        SDLK_v,
+    };
 
 
 	std::shared_ptr<Chip8Factory> c8f;
@@ -133,8 +150,38 @@ int main(int argc, char *argv[])
             SDL_RenderPresent(rend);
         }
 
+        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~30fps
     } // while (game running) 
+
+}
+
+int main(int argc, char *argv[]) {
+    
+#ifndef __EMSCRIPTEN__
+    if (argc < 2) {
+        print_usage(argv);
+    }
+
+    std::string the_rom = (argv[1]);
+    game (the_rom);
+
+#else // we're compiling with emscripting for wasm
+
+    // prototype for set_main_loop takes func ptr of form void (*)()
+    emscripten_set_main_loop(game, 30, 0);
+
+#endif
+
+	signal(SIGINT, [](int signum) {std::cout << "Received signal '" << signum << "'." << std::endl; exit(signum); });
 
 } // main
 
-	
+
+#ifdef __EMSCRIPTEN__
+using namespace emscripten;
+EMSCRIPTEN_BINDINGS(my_module) {
+    function ("load_rom", &load_rom);
+}
+#endif
+
+
