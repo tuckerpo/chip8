@@ -1,6 +1,10 @@
 #include "chip8factory.hpp"
 #include "gui.hpp"
+#if defined(_WIN32) || defined (WIN32)
+#include "SDL.h"
+#else
 #include <SDL2/SDL.h>
+#endif
 #include <chrono>
 #include <thread>
 #include <memory>
@@ -45,9 +49,7 @@ void game() {
 	{	
 		c8gui::error("Error initializing SDL2:", SDL_GetError());
 	}
-
-	SDL_Window *c8window = SDL_CreateWindow(c8gui::window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, c8gui::w, c8gui::h, SDL_WINDOW_OPENGL);
-	if (c8window == nullptr) c8gui::error("Window initialization error: ", SDL_GetError());
+    if (c8window == nullptr) c8gui::error("Window initialization error: ", SDL_GetError());
     SDL_Renderer *rend = SDL_CreateRenderer(c8window, -1, 0);
 
     if (!rend) {
@@ -90,7 +92,6 @@ void game() {
         while(SDL_PollEvent(&e)) {
             switch (e.type)
             {
-
                 case SDL_KEYDOWN:
                 {
                     if (e.key.keysym.sym == SDLK_ESCAPE)
@@ -103,7 +104,6 @@ void game() {
                     }
                     break;
                 }
-
                 case SDL_KEYUP:
                 {
                     for (int i = 0; i < 16; ++i) {
@@ -113,7 +113,6 @@ void game() {
                     }
                     break;
                 }
-
                 case SDL_WINDOWEVENT:
                 {
                     switch (e.window.event)
@@ -129,7 +128,6 @@ void game() {
                         }
                     }
                 }
-
                 default:
                 {
                     break;
@@ -139,7 +137,6 @@ void game() {
 
         if (c8->draw) {
             c8->draw &= ~c8->draw;
-            
             for (int i = 0; i < 2048; ++i) {
                 uint8_t pixel = c8->vram[i];
                 pixels[i] = (0x00FFFFFF * pixel) | 0xFF000000;
@@ -183,5 +180,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
     function ("load_rom", &load_rom);
 }
 #endif
+
 
 
