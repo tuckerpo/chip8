@@ -2,7 +2,6 @@
 *.out
 *.exe
 CMakeFiles/
-CMakeModules/
 CMakeCache.txt
 Makefile 
 cmake_install.cmake
@@ -10,4 +9,5 @@ cmake_install.cmake
 node_modules/
 **/*.log
 package-lock.json
+.vscode
 
