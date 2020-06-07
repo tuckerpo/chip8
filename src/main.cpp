@@ -1,59 +1,65 @@
-#include "chip8factory.hpp"
-#include "gui.hpp"
-#if defined(_WIN32) || defined (WIN32)
-#include "SDL.h"
-#else
-#include <SDL2/SDL.h>
-#endif
 #include <chrono>
 #include <thread>
 #include <memory>
 #include <csignal>
+#include <string>
+#include "chip8.hpp"
+
+#include "gui.hpp"
+#if defined(_WIN32) || defined (WIN32)
+#define SDL_MAIN_HANDLED
+#include "SDL.h"
+#else
+#include <SDL2/SDL.h>
+#endif
+
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/bind.h>
-
-#endif
-
-#ifdef _WIN32
-#define SDL_MAIN_HANDLED
-#endif
+#endif // __EMSCRIPTEN__
 
 static bool romLoaded = false;
 
 #ifdef __EMSCRIPTEN__
-std::shared_ptr<Chip8Factory> c8f;
-std::shared_ptr<Chip8> c8 = c8f->createChip8();
-static std::string the_rom = std::string();
-#endif
+std::unique_ptr<Chip8> c8 = std::make_unique<Chip8>();
+static std::string the_rom{};
+#endif // __EMSCRIPTEN__
 
 static void print_usage(char **argv) {
-    printf("Usage: %s <ROM>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <ROM>\n", argv[0]);
     exit(1);
 }
 
 #ifdef __EMSCRIPTEN__
-void load_rom (std::string path) {
+static void load_rom (std::string path) {
     the_rom = path;
     c8->loadRom(path);
     romLoaded = true;
 }
-#endif 
+#endif // __EMSCRIPTEN__
 
-void game() {
+int main(int argc, char **argv) {
+#ifndef __EMSCRIPTEN__
+    if (argc < 2) {
+        print_usage(argv);
+    }
 
-    if (!romLoaded) return;
+    const std::string the_rom = std::string(argv[1]);
+
 	/* GUI */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) 
 	{	
 		c8gui::error("Error initializing SDL2:", SDL_GetError());
 	}
+
+    SDL_Window *c8window = SDL_CreateWindow(c8gui::window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, c8gui::w, c8gui::h, SDL_WINDOW_OPENGL);
+
     if (c8window == nullptr) c8gui::error("Window initialization error: ", SDL_GetError());
     SDL_Renderer *rend = SDL_CreateRenderer(c8window, -1, 0);
 
-    if (!rend) {
-        printf("Renderer is null %s", SDL_GetError());
+    if (rend == nullptr) {
+        c8gui::error("Renderer is null: ", SDL_GetError());
         exit(-1);
     }
 
@@ -81,9 +87,7 @@ void game() {
         SDLK_v,
     };
 
-
-	std::shared_ptr<Chip8Factory> c8f;
-	auto c8 = c8f->createChip8();
+	std::unique_ptr<Chip8> c8 = std::make_unique<Chip8>();
     c8->loadRom(the_rom);
     while (c8->getGameState()) 
     {
@@ -137,7 +141,7 @@ void game() {
 
         if (c8->draw) {
             c8->draw &= ~c8->draw;
-            for (int i = 0; i < 2048; ++i) {
+            for (int i = 0; i < c8->vram.size(); ++i) {
                 uint8_t pixel = c8->vram[i];
                 pixels[i] = (0x00FFFFFF * pixel) | 0xFF000000;
             }
@@ -150,24 +154,12 @@ void game() {
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~30fps
     } // while (game running) 
 
-}
-
-int main(int argc, char *argv[]) {
-    
-#ifndef __EMSCRIPTEN__
-    if (argc < 2) {
-        print_usage(argv);
-    }
-
-    std::string the_rom = (argv[1]);
-    game (the_rom);
-
 #else // we're compiling with emscripting for wasm
 
     // prototype for set_main_loop takes func ptr of form void (*)()
     emscripten_set_main_loop(game, 30, 0);
 
-#endif
+#endif // __EMSCRIPTEN__
 
 	signal(SIGINT, [](int signum) {std::cout << "Received signal '" << signum << "'." << std::endl; exit(signum); });
 
@@ -179,7 +171,7 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(my_module) {
     function ("load_rom", &load_rom);
 }
-#endif
+#endif // __EMSCRIPTEN__
 
 
 
