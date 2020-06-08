@@ -50,24 +50,25 @@ int main(int argc, char **argv) {
 	/* GUI */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) 
 	{	
-		c8gui::error("Error initializing SDL2:", SDL_GetError());
+		c8gui::error("Error initializing SDL2: ", SDL_GetError());
 	}
 
     SDL_Window *c8window = SDL_CreateWindow(c8gui::window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, c8gui::w, c8gui::h, SDL_WINDOW_OPENGL);
+    if (c8window == nullptr) {
+        c8gui::error("Window initialization error: ", SDL_GetError());
+        exit(-1);
+    }
 
-    if (c8window == nullptr) c8gui::error("Window initialization error: ", SDL_GetError());
     SDL_Renderer *rend = SDL_CreateRenderer(c8window, -1, 0);
-
     if (rend == nullptr) {
         c8gui::error("Renderer is null: ", SDL_GetError());
         exit(-1);
     }
 
     SDL_RenderSetLogicalSize(rend, c8gui::w, c8gui::h);
-
     SDL_Texture *texture = SDL_CreateTexture(rend, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
-
-    uint32_t pixels[0x800];
+    static constexpr int pixelArrSize = 0x800;
+    std::array<uint32_t, pixelArrSize> pixels{};
     uint8_t keys[16] = {
         SDLK_x,
         SDLK_1,
@@ -91,7 +92,8 @@ int main(int argc, char **argv) {
     c8->loadRom(the_rom);
     while (c8->getGameState()) 
     {
-        c8->opCycle(c8->fetchOpcode());
+        auto instr = c8->fetchOpcode();
+        c8->opCycle(instr);
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
             switch (e.type)
@@ -140,17 +142,16 @@ int main(int argc, char **argv) {
         } //  while poll (SDLEvent)
 
         if (c8->draw) {
-            c8->draw &= ~c8->draw;
-            for (int i = 0; i < c8->vram.size(); ++i) {
+            c8->draw = !c8->draw;
+            for (std::size_t i = 0; i < c8->vram.size(); ++i) {
                 uint8_t pixel = c8->vram[i];
                 pixels[i] = (0x00FFFFFF * pixel) | 0xFF000000;
             }
-            SDL_UpdateTexture(texture, NULL, pixels, 64 * sizeof(int32_t));
+            SDL_UpdateTexture(texture, NULL, &pixels[0], 64 * sizeof(int32_t));
             SDL_RenderClear(rend);
             SDL_RenderCopy(rend, texture, NULL, NULL);
             SDL_RenderPresent(rend);
         }
-
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~30fps
     } // while (game running) 
 

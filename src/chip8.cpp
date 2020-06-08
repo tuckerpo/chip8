@@ -31,7 +31,6 @@ Chip8::Chip8()
     delay_timer = 0;
     sound_timer = 0;
     srand((unsigned int)time(NULL));
-//rng.seed(std::random_device()());
 }
 
 Chip8::~Chip8()
@@ -61,7 +60,7 @@ void Chip8::opCycle(const uint16_t& op)
             switch(op & 0x000F) {
             /* Clear the screen. */
             case 0x0000:
-                for (int i = 0; i < 2048; ++i) {
+                for (std::size_t i = 0; i < vram.size(); ++i) {
                     vram[i] = 0;
                 }
                 draw = true;
@@ -200,7 +199,6 @@ void Chip8::opCycle(const uint16_t& op)
            stored in I. Set VF to 01 if any set pixels are changed to unset, 00 if not. */
         case 0xD000:
         {
-            //TODO yikes!
 	    uint16_t x = V[(op & 0x0F00) >> 8];
 	    uint16_t y = V[(op & 0x00F0) >> 4];
 	    uint16_t height = op & 0x000F;
@@ -322,7 +320,7 @@ void Chip8::opCycle(const uint16_t& op)
 
     default:
         printf("Mystery opcode %.4X\n", op);
-
+        break;
     }
     if (delay_timer > 0) --delay_timer;
     if (sound_timer > 0) 
