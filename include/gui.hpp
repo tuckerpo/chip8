@@ -3,18 +3,13 @@
 #pragma once
 #include <cstdio>
 
-
 namespace c8gui {
-	static constexpr int w {1024};
-	static constexpr int h {768};
-	static const char* window_title = "Chip8 Interpreter";
-	static const void error(const char * str, const char * err)
-	{
-		fprintf(stderr, "%s - %s", str, err);
-	}
+static constexpr int w{1024};
+static constexpr int h{768};
+static const char* window_title = "Chip8 Interpreter";
+static const void error(const char* str, const char* err) {
+  fprintf(stderr, "%s - %s", str, err);
 }
+}  // namespace c8gui
 
-
-
-
-#endif // _GUI_H
+#endif  // _GUI_H
